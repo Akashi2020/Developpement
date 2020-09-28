@@ -1,0 +1,118 @@
+if (ynTicket == 1){
+
+client.on('message', async message => {
+  if(message.author.bot) return;
+  if(message.content.indexOf(prefix) !== 0) return;
+
+  const args = message.content.slice(prefix.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+
+  const cafe = message.guild.emojis.cache.find(emoji => emoji.name === 'cafe');
+  const web = message.guild.emojis.cache.find(emoji => emoji.name === 'web');
+  const megaphone = message.guild.emojis.cache.find(emoji => emoji.name === 'megaphone');
+  const cle = message.guild.emojis.cache.find(emoji => emoji.name === 'cle');
+  const carte = message.guild.emojis.cache.find(emoji => emoji.name === 'carte');
+  const redacteur = message.guild.emojis.cache.find(emoji => emoji.name === 'redacteur');
+  const graphiste = message.guild.emojis.cache.find(emoji => emoji.name === 'graphiste');
+  const dessin = message.guild.emojis.cache.find(emoji => emoji.name === 'dessin');
+  const texture = message.guild.emojis.cache.find(emoji => emoji.name === 'texture');
+  const minia = message.guild.emojis.cache.find(emoji => emoji.name === 'minia');
+  const model = message.guild.emojis.cache.find(emoji => emoji.name === 'model');
+  const youtube = message.guild.emojis.cache.find(emoji => emoji.name === 'youtube');
+  const trailer = message.guild.emojis.cache.find(emoji => emoji.name === 'trailer');
+  const game = message.guild.emojis.cache.find(emoji => emoji.name === 'game');
+  const demande = message.guild.emojis.cache.find(emoji => emoji.name === 'demande');
+
+  if(command == "setup") {
+
+      let channel = message.mentions.channels.first();
+      if(!channel) return message.reply("Utilise: `!setup #channel`");
+
+      let sent = await channel.send(new Discord.MessageEmbed()
+          .setAuthor("Créer Un Ticket")
+          .setDescription(`
+          Veuillez mettre une réaction où vous avez besoin !
+
+          ${cafe} - Développeur Java
+          ${web} - Développeur Web
+          ${megaphone} - Community-Manager
+          ${cle} - Sys-Admin
+          ${carte} - Builder
+          ${redacteur} - Rédacteur
+          ${graphiste} - Graphiste
+          ${dessin} - Dessin
+          ${texture} - Texture Maker
+          ${minia} - Minia-Maker
+          ${model} - Modélisateur
+          ${youtube} - Youtubeur
+          ${trailer} - Trailer-Maker
+          ${game} - Game Designer
+          ${demande} - Pour toutes autres demandes`)
+          .setFooter("Community Faction - 2020", guildImage)
+          .setColor("F26A0C")
+          .setTimestamp(new Date())
+      );
+
+      sent.react('752609590184771706');
+      sent.react('752610089902538784');
+      sent.react('752610473496674395');
+      sent.react('752610734487371910');
+      sent.react('752611085651148872');
+      sent.react('752611329503920278');
+      sent.react('752628419878977607');
+      sent.react('752612597760524329');
+      sent.react('752612838446596116');
+      sent.react('752616020136689674');
+      sent.react('752616161048526888');
+      sent.react('752616376744542298');
+      sent.react('752616623109570652');
+      sent.react('752617330852495453');
+      sent.react('752617502621827133');
+      settings.set(`${message.guild.id}-ticket`, sent.id);
+
+      message.channel.send("Sytème de Ticket setup !")
+  }
+  
+  client.on('messageReactionAdd', async (reaction, user, message) => {
+  if(user.partial) await user.fetch();
+  if(reaction.partial) await reaction.fetch();
+  if(reaction.message.partial) await reaction.message.fetch();
+
+  if(user.bot) return;
+
+  let ticketid = await settings.get(`${reaction.message.guild.id}-ticket`);
+
+  const categoryId = "752193146116505811";
+
+  if(!ticketid) return;
+
+  if(reaction.message.id == ticketid && reaction.emoji.name == 'cafe') {
+      reaction.users.remove(user);
+
+      reaction.message.guild.channels.create(`${user.username}-${user.discriminator}`, {
+        permissionOverwrites: [
+            {
+                id: user.id,
+                allow: ["SEND_MESSAGES", "VIEW_CHANNEL"]
+            },
+            {
+                id: reaction.message.guild.roles.everyone,
+                deny: ["VIEW_CHANNEL"]
+            }
+        ],
+        type: 'text'
+    }).then((createdChan) => {
+      createdChan.setParent(categoryId).then((settedParent) => {
+
+      const role = reaction.message.guild.roles.cache.get("752193069163741225");
+
+      settedParent.updateOverwrite(role, { VIEW_CHANNEL: true, VIEW_MESSAGES: true, SEND_MESSAGES: true });
+      
+      const embedParent = new Discord.MessageEmbed()
+      .setTitle("Bonjour, " + user.username.toString())
+      .setDescription("Vous venez d'être redirigé vers un ticket de Développeur Java")
+      .setColor("00ff00")
+
+      settedParent.send(embedParent);
+      });
+    });
